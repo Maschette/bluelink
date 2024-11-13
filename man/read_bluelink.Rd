@@ -6,7 +6,7 @@
 \usage{
 read_bluelink(
   x,
-  varname = c("ocean_salt", "ocean_temp", "ocean_u", "ocean_v", "ocean_w"),
+  varname = c("ocean_salt", "ocean_temp", "ocean_u", "ocean_v", "ocean_w", "ocean_mld"),
   depth = 1L
 )
 }
@@ -15,15 +15,22 @@ read_bluelink(
 
 \item{varname}{variable name one of "ocean_\if{html}{\out{<s>}}" salt, temp, u, v, w  (being salt=salinity, temp=temperature, u,v,w= velocity components in x,y,z direction)}
 
-\item{depth}{}
+\item{depth}{depth level (there are 51, from the surface to the bottom) see Details}
 }
 \value{
 SpatRaster
 }
 \description{
-Title
+The 'depth' argument is from 1 to 51.
+Time is 'days since 1979-01-01 00:00:00'
+See a representative ncdump output in examples, text saved in this package.
 }
 \examples{
 read_bluelink(varname = "ocean_w")
 read_bluelink("2023-01-05", "ocean_salt")
+if(interactive()) {
+ sfile <- "ncdump/atm_flux_diag_1993_01.nc.dump"
+ sfile1 <- system.file(sfile, package = "bluelink", mustWork = TRUE)
+ utils::browseURL(sfile1)
+}
 }

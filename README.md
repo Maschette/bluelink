@@ -4,6 +4,8 @@
 # bluelink
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/mdsumner/bluelink/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mdsumner/bluelink/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of bluelink is to provide access to the Bluelink Reanalysis
@@ -38,7 +40,7 @@ read_bluelink(varname = "ocean_w")
 #> class       : SpatRaster 
 #> dimensions  : 1500, 3600, 1  (nrow, ncol, nlyr)
 #> resolution  : 0.1, 0.1  (x, y)
-#> extent      : -9.507305e-10, 360, -75, 75  (xmin, xmax, ymin, ymax)
+#> extent      : 0, 360, -75, 75  (xmin, xmax, ymin, ymax)
 #> coord. ref. : +proj=longlat +datum=WGS84 +no_defs 
 #> source      : ocean_w_1998_01.nc:w 
 #> varname     : w (dia-surface velocity T-points) 
@@ -53,7 +55,7 @@ read_bluelink(varname = "ocean_temp")
 #> class       : SpatRaster 
 #> dimensions  : 1500, 3600, 1  (nrow, ncol, nlyr)
 #> resolution  : 0.1, 0.1  (x, y)
-#> extent      : -9.507305e-10, 360, -75, 75  (xmin, xmax, ymin, ymax)
+#> extent      : 0, 360, -75, 75  (xmin, xmax, ymin, ymax)
 #> coord. ref. : +proj=longlat +datum=WGS84 +no_defs 
 #> source      : ocean_temp_1993_01.nc:temp 
 #> varname     : temp (Potential temperature) 
@@ -68,16 +70,34 @@ read_bluelink("2023-12-31", varname = "ocean_temp")
 #> class       : SpatRaster 
 #> dimensions  : 1500, 3600, 1  (nrow, ncol, nlyr)
 #> resolution  : 0.1, 0.1  (x, y)
-#> extent      : -9.507305e-10, 360, -75, 75  (xmin, xmax, ymin, ymax)
+#> extent      : 0, 360, -75, 75  (xmin, xmax, ymin, ymax)
 #> coord. ref. : +proj=longlat +datum=WGS84 +no_defs 
 #> source      : ocean_temp_2023_12.nc:temp 
 #> varname     : temp (Potential temperature) 
-#> name        : temp_st_ocean=2.5_Time=16435.5 
-#> unit        :                      degrees C
+#> name        : temp_st_ocean=373.1943359375_Time=16405.5 
+#> unit        :                                 degrees C
 ```
 
 Generally, take the year you are in and you should be able to get days
 from last year.
+
+## Try a time series
+
+Every day on the first of September
+
+``` r
+dts <- seq(as.Date("1993-10-10"), as.Date("2023-10-10"), by = "1 year")
+
+options(parallelly.fork.enable = TRUE, future.rng.onMisuse = "ignore")
+library(furrr); plan(multicore)
+#> Loading required package: future
+
+sst <- future_map_dbl(dts, \(.x) terra::extract(read_bluelink(.x, varname = "ocean_temp"), cbind(150, -42))[[1]])
+plan(sequential)
+plot(dts, sst)
+```
+
+<img src="man/figures/README-time-1.png" width="100%" />
 
 ## Code of Conduct
 
