@@ -77,7 +77,7 @@ read_mld <- function(x) {
 #' Title
 #'
 #' @param x date or datetime object or string
-#' @param varname variable name one of "ocean_<s>" salt, temp, u, v, w  (being salt=salinity, temp=temperature, u,v,w= velocity components in x,y,z direction)
+#' @param varname variable name one of "ocean_" salt, temp, u, v, w  (being salt=salinity, temp=temperature, u,v,w= velocity components in x,y,z direction)
 #' @param depth
 #'
 #' @return SpatRaster
@@ -94,7 +94,7 @@ read_bluelink <- function(x, varname = c("ocean_salt", "ocean_temp",
 
   if (missing(x)) x <- mindate
   x <- as.Date(x)[1]
-  depth <- depth[1L]
+  #depth <- depth[1L] if you have this the next bit is redundent
   if (length(depth) < 1 || depth < 1 || depth > 51 || is.na(depth)) stop("only 51 depths available")
 
 
@@ -102,10 +102,10 @@ read_bluelink <- function(x, varname = c("ocean_salt", "ocean_temp",
   idx <- (intday-1) * 51 + depth
 
 
-  obj <- .generate_raster(x, varname = "ocean_mld")
+  obj <- .generate_raster(x, varname = varname)
   if (inherits(obj, "BasicRaster")) {
     stopifnot(raster::nlayers(obj) == lubridate::days_in_month(x[1]))
-    out <- terra::rast(obj[[idx]] * 1)
+    out <- terra::rast(obj[[idx]] * 1, keepunits=T)
   } else {
     ## check here
     stopifnot(terra::nlyr(obj) == lubridate::days_in_month(x[1]))
